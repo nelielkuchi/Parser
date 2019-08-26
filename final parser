@@ -1,0 +1,146 @@
+import pandas as pd
+import xml.etree.ElementTree as ET
+import re
+
+####DEFINE NODE####
+def getvalueofnode(node):
+    """return node text or None"""
+    return node.text if node is not None else None
+    ###Will get the value as a text in the end to insert the data into the dataframe
+    ###if there is no data it returns None
+
+###DEFINING ROOT ELEMENT###
+dfcols = ['Date', 'Product', 'Buyer', 'Price'] ###nameing the columns of the dataframe (header of the table)
+#df_xml = pd.DataFrame(columns=dfcols) ###sets DataFrame to use the header as columns
+
+###takes the test roll and parses it with ElementTree
+tree = ET.parse('C:\\Users\\Gina\\Documents\\Master Thesis\\Programming\\2019-08-26\\AuctionRoll10.xml')
+###defines root as the root - Element from Test roll.xml
+root = tree.getroot()
+
+####GET DATA####
+###iteration over body in root
+for body in root:
+    ###itertion over divs in body
+    for div in body:
+        date = div.find('.//date')
+        rows = div.findall('.//row')
+        for row in rows:
+            try:
+                cells = row.findall('.//cell')
+                date2 = getvalueofnode(date)
+                #print(cells)
+                product = getvalueofnode(cells[0])
+                buyer = getvalueofnode(cells[1])
+                price = getvalueofnode(cells[-1])
+                #print(date2)
+                #print(getvalueofnode(product))
+                #print(getvalueofnode(buyer))
+                #print(getvalueofnode(price))
+                lines = (str(date2) + ';' + str(product) + ';' + str(buyer) + ';' + str(price))
+                f = open('ResultTEST.txt','a', encoding = 'utf-8')
+                f.write(str(lines))
+                f.write('\n')
+                f.close()
+            except IndexError:
+                continue
+    print('done')
+
+###SMOOTHES PRICE OUT TO MAKE READABLE AND USABLE###
+with open('ResultTEST.txt', 'r', encoding='utf-8') as f:
+    text = f.read().replace(':', '.').replace('–', '0')
+with open('ResultTEST.txt', 'w', encoding='utf-8') as f:
+    f.write(text)
+print('done again.')
+
+###SAVES DATA IN CORRECT FORM###
+df = pd.read_csv('ResultTEST.txt', sep=';', header=0,
+   names=['Date; Product; Buyer; Price'])
+df.to_csv('new_ResultTEST.csv', index= False)
+print('finally done')
+
+
+###PARSES OVER ResultTEST.txt TO EXTRACT HORSES AND SAVES HORSES AS TXT AND AS CSV###
+
+f = open('ResultTEST.txt', 'r', encoding='mbcs')
+word = ['(.*paard.*)|(.*veul.*)|(.*merrij.*)|(.*hengste.*)']
+for line in f:
+    for i in word:
+        if re.search(i, line):
+            #print(line)
+            horses = line
+            horsesFile = open('horses.csv', 'a', encoding='mbcs')
+            horsesFile.write(horses)
+            horsesFile.close()
+            horsesFileTxt = open('horses.txt', 'a', encoding='mbcs')
+            horsesFileTxt.write(horses)
+            horsesFileTxt.close()
+print('Folder Horses done.')
+
+###PARSES OVER ResultTEST.txt TO EXTRACT SLAVES AND SAVES SLAVES AS TXT AND AS CSV###
+
+f = open('ResultTEST.txt', 'r', encoding='mbcs')
+word = ['(.*slave.*)|(.*slaven.*)|(.*slavin.*)']
+for line in f:
+    for i in word:
+        if re.search(i, line):
+        #print(line)
+            slaves = line
+            slavesFile = open('slaves.csv', 'a', encoding='mbcs')
+            slavesFile.write(slaves)
+            slavesFile.close()
+            slavesFileTxt = open('slaves.txt', 'a', encoding='ANSI')
+            slavesFileTxt.write(slaves)
+            slavesFileTxt.close()
+print('Folder Slaves done.')
+
+###PARSES OVER ResultTEST.txt TO EXTRACT CHAIRS AND SAVES CHAIRS AS TXT AND AS CSV###
+
+f = open('ResultTEST.txt', 'r', encoding='mbcs')
+word = ['(.*stoel.*)|(.*stoelen.*)']
+for line in f:
+    for i in word:
+        if re.search(i, line):
+            #print(line)
+            chairs = line
+            chairsFile = open('chairs.csv', 'a', encoding='mbcs')
+            chairsFile.write(chairs)
+            chairsFile.close()
+            chairsFileTxt = open('chairs.txt', 'a', encoding='mbcs')
+            chairsFileTxt.write(chairs)
+            chairsFileTxt.close()
+print('Folder Chair done')
+
+###PARSES OVER ResultTEST.txt TO EXTRACT CATTLE AND SAVES CATTLE AS TXT AND AS CSV###
+
+f = open('ResultTEST.txt', 'r', encoding='mbcs')
+word = ['(.*beest.*)|(.*beeste.*)']
+for line in f:
+    for i in word:
+        if re.search(i, line):
+            #print(line)
+            cattles = line
+            cattlesFile = open('cattles.csv', 'a', encoding='mbcs')
+            cattlesFile.write(cattles)
+            cattlesFile.close()
+            cattlesFileTxt = open('cattles.txt', 'a', encoding='mbcs')
+            cattlesFileTxt.write(cattles)
+            cattlesFileTxt.close()
+print('Folder Cattle done.')
+
+###PARSES OVER ResultTEST.txt TO EXTRACT BOOKS AND SAVES BOOKS AS TXT AND AS CSV###
+
+f = open('ResultTEST.txt', 'r', encoding='mbcs')
+word = ['(.*boek.*)|(.*boeken.*)']
+for line in f:
+    for i in word:
+        if re.search(i, line):
+            #print(line)
+            books = line
+            booksFile = open('books.csv', 'a', encoding='mbcs')
+            booksFile.write(books)
+            booksFile.close()
+            booksFileTxt = open('books.txt', 'a', encoding='mbcs')
+            booksFileTxt.write(books)
+            booksFileTxt.close()
+print('Folder Books done.')
